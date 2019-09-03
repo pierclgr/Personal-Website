@@ -53,7 +53,6 @@
 
 html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
 }
 
 h1, h2 {
@@ -68,6 +67,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    overflow-x: hidden;
 }
 
 .generic-container {
@@ -914,6 +914,7 @@ body {
         display: block;
         margin-top: 0px;
         margin-left: 40px;
+        scroll-margin-left: 20px;
     }
 
     .experience-container .experience:first-of-type {

@@ -85,6 +85,9 @@ body {
     height: 100px;
     background-color: transparent;
     position: fixed;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     z-index: 2;
 }
@@ -99,6 +102,9 @@ body {
 }
 
 .nav-icon {
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     width: 30px;
     height: 30px;
@@ -152,6 +158,9 @@ body {
 
 .nav-menu a:link,
 .nav-menu a:visited {
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     color: #fefcfb;
 }
@@ -206,6 +215,9 @@ body {
 
 .mobile-menu a:link,
 .mobile-menu a:visited {
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     color: #fefcfb;
 }
@@ -361,6 +373,9 @@ body {
 }
 
 .raisable-element {
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     box-shadow: none;
 }
@@ -409,6 +424,9 @@ body {
     width: 20px;
     height: 20px;
     background-size: cover;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
 }
 
@@ -638,6 +656,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     padding: 20px;
     border-radius: 10px;
@@ -766,6 +787,9 @@ body {
 
 .mailto {
     color: #fefcfb;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
     transition: 0.25s;
     overflow-wrap: break-word;
     font-weight: 600;

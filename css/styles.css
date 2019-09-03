@@ -64,8 +64,6 @@ body {
     font-family: 'Mosk';
     font-weight: 400;
     background-color: #fefcfb;
-    scroll-snap-type: y proximity;
-    overflow-y: scroll;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -217,7 +215,6 @@ body {
 }
 
 .section {
-    scroll-snap-align: start;
     scroll-margin-top: 60px;
 }
 
@@ -893,7 +890,6 @@ body {
         justify-content: flex-start;
         width: 60%;
         padding-left: 40px;
-        scroll-snap-align: none;
     }
 
     .about-section h1 {
@@ -902,8 +898,6 @@ body {
 
     .experience-container {
         display: flex;
-        scroll-snap-type: x mandatory;
-        overflow-x: scroll;
         flex-wrap: nowrap;
         width: 100vw;
         padding-left: 0;
@@ -918,8 +912,6 @@ body {
         display: block;
         margin-top: 0px;
         margin-left: 40px;
-        scroll-snap-align: start;
-        scroll-margin-left: 20px;
     }
 
     .experience-container .experience:first-of-type {

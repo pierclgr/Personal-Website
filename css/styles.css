@@ -903,6 +903,7 @@ body {
         padding-left: 0;
         padding-right: 0;
         justify-content: flex-start;
+        overflow-x: scroll;
     }
 
     .experience {

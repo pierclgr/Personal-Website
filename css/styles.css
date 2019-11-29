@@ -382,7 +382,7 @@ body {
 
 .raisable-element:hover,
 .raisable-element:focus {
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.50);
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.40);
 }
 
 .about-section h1 {
@@ -459,24 +459,55 @@ body {
     background-color: #f2f2f3;
 }
 
-.experience {
-    width: 100%;
-    margin-top: 40px;
-}
-
 .experiences-section .content-section:first-of-type {
     padding-bottom: 0;
 }
 
-.experience-container {
-    padding-top: 0;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 40px;
-}
-
 .experiences-section .experience:first-of-type {
     margin-top: 0;
+}
+
+
+.experience-container {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100vw;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    justify-content: flex-start;
+    overflow-x: scroll;
+}
+
+.experience {
+    max-width: 90%;
+    min-width: 90%;
+    width: 90%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    scroll-margin-left: 20px;
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.30);
+}
+
+.spacer {
+    min-width: 20px;
+    display: inline-block;
+}
+
+.experience:nth-child(2) {
+    margin-left: 0;
+}
+
+.experience:nth-child(6) {
+    margin-right: 0;
 }
 
 .row {
@@ -892,6 +923,12 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
+    .experience {
+        max-width: 350px;
+        min-width: 350px;
+        width: 350px;
+    }
+
     .rainbow-text {
         font-size: 3.6rem;
     }
@@ -919,35 +956,6 @@ body {
 
     .about-section h1 {
         margin-top: 0;
-    }
-
-    .experience-container {
-        display: flex;
-        flex-wrap: nowrap;
-        width: 100vw;
-        padding-left: 0;
-        padding-right: 0;
-        justify-content: flex-start;
-        overflow-x: scroll;
-    }
-
-    .experience {
-        max-width: 350px;
-        min-width: 350px;
-        width: 350px;
-        display: block;
-        margin-top: 0px;
-        margin-left: 40px;
-        scroll-margin-left: 20px;
-    }
-
-    .experience-container .experience:first-of-type {
-        padding-left: 20px;
-        margin-left: 0;
-    }
-
-    .experience-container .experience:last-of-type {
-        padding-right: 20px;
     }
 
     .skills {
@@ -1025,10 +1033,6 @@ body {
         padding-left: 60px;
     }
 
-    .experience-container {
-        padding-top: 0;
-    }
-
     .footer-info .content-section {
         padding-left: 20px;
         padding-right: 20px;
@@ -1036,6 +1040,10 @@ body {
         padding-bottom: 40px;
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    .experience-container {
+        padding-top: 40px;
     }
 
     .footer-info p{

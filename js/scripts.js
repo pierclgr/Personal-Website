@@ -92,9 +92,9 @@ function toggleHamburgerButton() {
 /* Close menu on menu voice click */
 linkWork = document.getElementById("linkWork");
 linkAbout = document.getElementById("linkAbout");
-linkSummary = document.getElementById("linkSummary")
+linkSummary = document.getElementById("linkSummary");
 
-linkSummary.addEventListener("click", closeMenu)
+linkSummary.addEventListener("click", closeMenu);
 linkWork.addEventListener("click", closeMenu);
 linkAbout.addEventListener("click", closeMenu);
 
@@ -141,4 +141,15 @@ if (ua.indexOf('edge') != -1) {
         document.body.style.scrollSnapType = "none";
         document.getElementsByClassName("experience-container")[0].style.scrollSnapType = "none";
     }
+}
+
+/* marquee */
+const root = document.documentElement;
+const marqueeElementsDisplayed = getComputedStyle(root).getPropertyValue("--marquee-elements-displayed");
+const marqueeContent = document.querySelector("ul.marquee-content");
+
+root.style.setProperty("--marquee-elements", marqueeContent.children.length);
+
+for(let i=0; i<marqueeElementsDisplayed; i++) {
+  marqueeContent.appendChild(marqueeContent.children[i].cloneNode(true));
 }

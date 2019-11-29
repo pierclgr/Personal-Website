@@ -74,6 +74,14 @@ body {
     width: 100%;
 }
 
+.work-section {
+    background-color: #f2f2f3;
+}
+
+.work-section .responsive-container {
+    padding-bottom: 0;
+}
+
 .responsive-container {
     padding-left: 20px;
     padding-right: 20px;
@@ -861,6 +869,67 @@ body {
     margin-top: 20px;
 }
 
+.work-container {
+    width: 100%;
+    padding-top: 40px;
+}
+  
+:root {
+    --marquee-width: 100vw;
+    --marquee-height: 100px;
+    --marquee-spacing: 200px;
+    /* --marquee-elements: 12; */ /* defined with JavaScript */
+    --marquee-elements-displayed: 9;
+    --marquee-element-width: calc(var(--marquee-width) / var(--marquee-elements-displayed) + var(--marquee-spacing));
+    --marquee-animation-duration: calc(var(--marquee-elements) * 4s);
+}
+  
+.marquee {
+    width: var(--marquee-width);
+    height: var(--marquee-height);
+    overflow: hidden;
+    position: relative;
+}
+
+.marquee-content {
+    list-style: none;
+    height: 100%;
+    display: flex;
+    animation: scrolling var(--marquee-animation-duration) linear infinite;
+}
+
+.marquee-content:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scrolling {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-1 * var(--marquee-element-width) * var(--marquee-elements))); }
+}
+
+.marquee-content li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    width: var(--marquee-element-width);
+    max-height: 100%;
+}
+
+.marquee-content li a {
+    height: 100%;
+    opacity: 0.5;
+    transition: 0.25s;
+}
+
+.marquee-content li a:hover {
+    opacity: 1;
+}
+
+.marquee-content li img {
+    height: 100%;
+}
 
 @-webkit-keyframes scroll {
     0% {
@@ -923,6 +992,18 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
+    :root {
+        --marquee-spacing: 150px;
+    }
+
+    .experience-container {
+        padding-top: 40px;
+    }
+
+    .work-container {
+        padding-top: 40px;
+    }
+
     .experience {
         max-width: 350px;
         min-width: 350px;
@@ -985,6 +1066,10 @@ body {
 
 
 @media only screen and (min-width: 961px) {
+    :root {
+        --marquee-spacing: 100px;
+    }
+    
     .responsive-container {
         width: 960px;
     }
@@ -1042,10 +1127,6 @@ body {
         justify-content: space-between;
     }
 
-    .experience-container {
-        padding-top: 40px;
-    }
-
     .footer-info p{
         margin-top: 0;
     }
@@ -1056,5 +1137,13 @@ body {
 
     .summary {
         background-image: url('../photos/coding-image-4k.jpg');
+    }
+
+    .experience-container {
+        padding-top: 40px;
+    }
+
+    .work-container {
+        padding-top: 40px;
     }
 }

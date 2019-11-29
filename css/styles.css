@@ -754,6 +754,7 @@ body {
 }
 
 .project-item:nth-of-type(5) {
+    display: none;
     background-image: url("../photos/crispr.jpg");
 }
 
@@ -877,10 +878,9 @@ body {
 :root {
     --marquee-width: 100vw;
     --marquee-height: 100px;
-    --marquee-spacing: 200px;
     /* --marquee-elements: 12; */ /* defined with JavaScript */
-    --marquee-elements-displayed: 9;
-    --marquee-element-width: calc(var(--marquee-width) / var(--marquee-elements-displayed) + var(--marquee-spacing));
+    --marquee-elements-displayed: 3;
+    --marquee-element-width: calc(var(--marquee-width) / var(--marquee-elements-displayed));
     --marquee-animation-duration: calc(var(--marquee-elements) * 4s);
 }
   
@@ -923,12 +923,18 @@ body {
     transition: 0.25s;
 }
 
-.marquee-content li a:hover {
+.marquee-content li a:hover,
+.marquee-content li a:focus {
     opacity: 1;
 }
 
 .marquee-content li img {
     height: 100%;
+    max-width: 100px;
+}
+
+.no-margin {
+    margin: 0;
 }
 
 @-webkit-keyframes scroll {
@@ -992,8 +998,10 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
-    :root {
-        --marquee-spacing: 150px;
+
+    .content-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
     }
 
     .experience-container {
@@ -1062,14 +1070,14 @@ body {
     .mobile-menu {
         font-size: 3rem;
     }
+
+    :root {
+        --marquee-elements-displayed: 6;
+      }
 }
 
 
 @media only screen and (min-width: 961px) {
-    :root {
-        --marquee-spacing: 100px;
-    }
-    
     .responsive-container {
         width: 960px;
     }
@@ -1146,4 +1154,8 @@ body {
     .work-container {
         padding-top: 40px;
     }
+
+    :root {
+        --marquee-elements-displayed: 9;
+      }
 }

@@ -754,7 +754,6 @@ body {
 }
 
 .project-item:nth-of-type(5) {
-    display: none;
     background-image: url("../photos/crispr.jpg");
 }
 

@@ -753,23 +753,27 @@ body {
     background-image: url("../photos/slack.jpg");
 }
 
+/* Hide CRISPRLearner */
+/*
 .project-item:nth-of-type(5) {
     background-image: url("../photos/crispr.jpg");
 }
+*/
 
-.project-item:nth-of-type(6) {
+/* To reset CRISPRLearner, update nth-of-type */
+.project-item:nth-of-type(5) {
     background-image: url("../photos/map.jpg");
 }
 
-.project-item:nth-of-type(7) {
+.project-item:nth-of-type(6) {
     background-image: url("../photos/data.jpg");
 }
 
-.project-item:nth-of-type(8) {
+.project-item:nth-of-type(7) {
     background-image: url("../photos/language.jpg");
 }
 
-.project-item:nth-of-type(9) {
+.project-item:nth-of-type(8) {
     background-image: url("../photos/website.jpg");
 }
 

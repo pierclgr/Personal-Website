@@ -940,6 +940,11 @@ body {
     margin: 0;
 }
 
+#luomochenonguarda {
+    filter: saturate(0);
+    -webkit-filter: saturate(0);
+}
+
 @-webkit-keyframes scroll {
     0% {
       opacity: 1;

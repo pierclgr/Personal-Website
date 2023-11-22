@@ -1,438 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <!-- This section contains all the metadata to identify webpage content on search engines -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="old/css/wip.css">
+    <title>Pierpasquale Colagrande - Website Under Construction</title>
+    <link rel="shortcut icon" type="image/png" href="old/icons/logo.png" />
+</head>
+<body>
+    <div class="content">
+        <canvas id="snakeCanvas" width="500" height="500"></canvas>
 
-        <!-- Meta tags containing website informations -->  
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, shrink-to-fit=no"/>
-        <meta name="description" content="Web designer, developer, AI student and Computer Scientist">
-        <meta name="author" content="Pierpasquale Colagrande">
-        <meta name="robots" content="index, follow">
-        <meta name="google-site-verification" content="vXdKtZ6gYXCMqk8KEu8ew-LhWbdMtHQkd-85hj0wIww" />
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const canvas = document.getElementById("snakeCanvas");
+                const ctx = canvas.getContext("2d");
+                const playButton = document.getElementById("playButton");
+    
+                const gridSize = 20;
+                let snake = [{ x: 10, y: 10 }];
+                let direction = "right";
+                let food = getRandomFoodPosition();
+                let gameSpeed = 150;
+                let isPlaying = false;
+    
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+                    // Draw thick box borders
+    
+                    snake.forEach(segment => {
+                        ctx.fillStyle = "#fefcfb";
+                        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                    });
+    
+                    ctx.fillStyle = "#fe7f2d";
+                    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+                }
+    
+                function update() {
+                    const head = { ...snake[0] };
+                    switch (direction) {
+                        case "up":
+                            head.y -= 1;
+                            break;
+                        case "down":
+                            head.y += 1;
+                            break;
+                        case "left":
+                            head.x -= 1;
+                            break;
+                        case "right":
+                            head.x += 1;
+                            break;
+                    }
+    
+                    // Check for collisions with borders
+                    if (
+                        head.x < 0 || head.x >= canvas.width / gridSize ||
+                        head.y < 0 || head.y >= canvas.height / gridSize
+                    ) {
+                        resetGame();
+                        return;
+                    }
+    
+                    snake.unshift(head);
+    
+                    if (head.x === food.x && head.y === food.y) {
+                        food = getRandomFoodPosition();
+                        increaseSpeed();
+                    } else {
+                        snake.pop();
+                    }
+    
+                    if (checkCollision()) {
+                        resetGame();
+                    }
+                }
+    
+                function checkCollision() {
+                    return snake.slice(1).some(segment => segment.x === snake[0].x && segment.y === snake[0].y);
+                }
+    
+                function getRandomFoodPosition() {
+                    return {
+                        x: Math.floor(Math.random() * (canvas.width / gridSize)),
+                        y: Math.floor(Math.random() * (canvas.height / gridSize))
+                    };
+                }
+    
+                function resetGame() {
+                    document.getElementById("score").textContent = "Game over! Your score: " + (snake.length - 1);
+                    snake = [{ x: 10, y: 10 }];
+                    direction = "right";
+                    food = getRandomFoodPosition();
+                    isPlaying = false;
+                    playButton.disabled = false;
+                    gameSpeed = 100;
+                }
+    
+                function increaseSpeed() {
+                    gameSpeed -= 5;
+                }
+    
+                function handleKeydown(event) {
+                    if (!isPlaying) {
+                        document.getElementById("score").textContent = "";
+                        isPlaying = true;
+                        playButton.disabled = true;
+                        gameLoop();
+                    }
+    
+                    switch (event.key) {
+                        case "ArrowUp":
+                            direction = "up";
+                            break;
+                        case "ArrowDown":
+                            direction = "down";
+                            break;
+                        case "ArrowLeft":
+                            direction = "left";
+                            break;
+                        case "ArrowRight":
+                            direction = "right";
+                            break;
+                    }
+                }
+    
+                function handlePlayButtonClick() {
+                    if (!isPlaying) {
+                        document.getElementById("score").textContent = "";
+                        isPlaying = true;
+                        playButton.disabled = true;
+                        gameLoop();
+                    }
+                }
+    
+                document.addEventListener("keydown", handleKeydown);
+                playButton.addEventListener("click", handlePlayButtonClick);
+    
+                function gameLoop() {
+                    update();
+                    draw();
+    
+                    if (isPlaying) {
+                        setTimeout(() => {
+                            requestAnimationFrame(gameLoop);
+                        }, gameSpeed);
+                    }
+                }
+            });
+        </script>
+    </div>
 
-        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-        <meta http-equiv="content-language" content="en">
-        <meta http-equiv="keywords" content="pierpasquale, colagrande, web, designer, developer, programmer, front, back, end, full, stack, ai, italy, bologna">
-
-        <!-- CSS stylesheet link -->
-        <link rel="stylesheet" type="text/css" href="css/styles.css">
-
-        <!-- Title of the web page -->
-        <title>Pierpasquale Colagrande</title>
-
-        <!-- Add Favicon -->
-        <link rel="shortcut icon" type="image/png" href="icons/logo.png" />
-    </head>
-
-    <body>
-        <header class="mobile-nav-bar">
-            <div class="generic-container nav-bar-container mobile-nav-bar-container">
-                <div class="responsive-container nav-bar">
-                    <a href="#summary" class="nav-icon logo" id="linkSummary"></a>
-
-                    <button class="menu-button close-menu-button" id="closeMenuButton" onclick="toggleHamburgerButton()">
-                        <img src="icons/close-icon.svg" class="nav-icon" alt="An hamburger menu icon" />
-                    </button>
-                </div>
-            </div>
-
-            <nav class="mobile-menu">
-                <ul>
-                    <li><a id="linkAbout" href="#about">About</a></li>
-                    <li><a id="linkWork" href="#work">Work</a></li>
-                </ul>
-            </nav>
-        </header>
-
-        <header class="generic-container nav-bar-container">
-            <div class="responsive-container nav-bar">
-                <a href="#summary" class="nav-icon logo"></a>
-
-                <button class="menu-button" onclick="toggleHamburgerButton()">
-                    <img src="icons/hamburger-icon.svg" class="nav-icon" alt="An hamburger menu icon" />
-                </button>
-
-                <nav class="nav-menu">
-                    <ul>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#work">Work</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
-
-        <main>
-            <div class="section generic-container summary" id="summary">
-                <div class="responsive-container personal-overview">
-                    <div class="main-titles">
-                        <h1 class="rainbow-text">Pierpasquale<br>Colagrande</h1>   
-
-                        <h2 class="typewrite" data-period="2000" data-type='["Web&nbsp;designer", "Web&nbsp;developer", "Programmer", "AI&nbsp;student", "Computer&nbsp;Scientist"]'>Web designer</h2>
-                    </div>
-                </div>
-                <div class="icon-scroll-container">
-                    <a href="#about" class='icon-scroll'></a>
-                </div>
-            </div>
-
-            <div class="section generic-container" id="about">
-                <div class="responsive-container content-section presentation-section">
-                    <picture class="raisable-element presentation-photo-container">
-                        <img src="photos/presentation-photo.jpg" alt="Photo of myself">
-                    </picture>
-                    <div class="section about-section">
-                        <h1>
-                            About
-                        </h1>
-                        <div class="separator">
-                        </div>
-                        <p>
-                            I started to grow a passion for coding when I was 12, when I discovered web design and started playing with Photoshop and Dreamweaver.
-                        </p>
-                        <p>
-                            After middle school, I decided to study programming and computer science at high school, to then continue these studies in university.
-                        </p>
-                        <p>
-                            I’ve always been passionate about new technologies, that’s why I'll start studying AI for my master degree in September.
-                        </p>
-                        <p>
-                            I’m currently working as a freelance web designer but I constantly search for new employments and experiences that can make me grow as a professionist and as a person. I also love graphics and UX/UI design, as well as every digital-related topics like digital marketing and social media, in fact I’m also taking specific courses on a digital learning platform called start2impact.
-                        </p>
-
-                        <div class="social-links">
-                            <a href="mailto:pierpasquale.colagrande@gmail.com" class="social-icon mail-icon"></a>
-                            <a href="https://www.instagram.com/pierclgr" class="social-icon instagram-icon"></a>
-                            <a href="https://www.github.com/pierclgr" class="social-icon github-icon"></a>
-                            <a href="https://www.linkedin.com/in/pierclgr/" class="social-icon linkedin-icon"></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section generic-container experiences-section">
-                <div class="responsive-container content-section">
-                    <h1>
-                        Experiences
-                    </h1>
-                    <div class="separator no-margin">
-                    </div>
-                </div>
-                <div class="experience-container content-section" id="experienceContainer">
-                    <div class="spacer"></div>
-                    <div class="experience">
-                        <div class="row">
-                            <div class="col">
-                                <img class="experience-icon" src="icons/public-museum-sign.svg">
-                            </div>
-                            <h2>Master<wbr>'s Degree</h2>
-                        </div>
-                        <div class="row">
-                            <h4>September 2019 - Present</h4>
-                        </div>
-                        <div class="row">
-                            <p>I'm currently studying Artificial Intelligence for my master's degree at Alma Mater Studiorum - University of Bologna</p>            
-                        </div>
-                    </div>
-
-                    <div class="experience">
-                        <div class="row">
-                            <div class="col">
-                                <img class="experience-icon" src="icons/rocket.svg">
-                            </div>
-                            <h2>Start2Impact</h2>
-                        </div>
-                        <div class="row">
-                            <h4>June 2019 - Present</h4>
-                        </div>
-                        <div class="row">
-                            <p>I started taking online courses about digital skills (programming, marketing, UX etc.)</p>               
-                        </div>
-                    </div>
-
-                    <div class="experience">
-                        <div class="row">
-                            <div class="col">
-                                <img class="experience-icon" src="icons/working.svg">
-                            </div>
-                            <h2>Web designer</h2>
-                        </div>
-                        <div class="row">
-                            <h4>June 2019 - Present</h4>
-                        </div>
-                        <div class="row">
-                            <p>I started working as a freelance web designer to improve my time management and self-employment skills</p>                  
-                        </div>
-                    </div>
-                    <div class="experience">
-                        <div class="row">
-                            <div class="col">
-                                <img class="experience-icon" src="icons/public-museum-sign.svg">
-                            </div>
-                            <h2>Bachelor<wbr>'s Degree</h2>
-                        </div>
-                        <div class="row">
-                            <h4>October 2015 - April 2019</h4>
-                        </div>
-                        <div class="row">
-                            <p>I graduated in computer science at University of Bari after three years of studies, where I improved coding skills and learnt new programming branches</p>            
-                        </div>
-                    </div>
-                    <div class="experience">
-                        <div class="row">
-                            <div class="col">
-                                <img class="experience-icon" src="icons/students-cap-icon.svg">
-                            </div>
-                            <h2>High School Diploma</h2>
-                        </div>
-                            
-                        <div class="row">
-                            <h4>September 2010 - July 2015</h4>
-                        </div>
-                        <div class="row">
-                            <p>I studied ICT for five years in high school and learnt programming as well as languages like C, PHP and Java</p>       
-                        </div>
-                    </div>
-                    <div class="spacer"></div>
-                </div>
-            </div>
-
-            <div class="section generic-container skills-section">
-                <div class="responsive-container content-section">
-                    <div class="skills soft-skills-container">
-                        <h1>
-                            Hard &#38; Soft <span class="minor-header">Skills</span>
-                        </h1>
-                        <div class="separator">
-                        </div>
-                        <div class="soft-skills">
-                            <div class='grid'>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/self-promotion.svg">
-                                    <h4>Self-promotion</h4>
-                                </div>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/proactivity.svg">
-                                    <h4>Proactivity</h4>
-                                </div>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/team-working.svg">
-                                    <h4>Team Working</h4>
-                                </div>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/problem-solving.svg">
-                                    <h4>Problem Solving</h4>
-                                </div>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/precision.svg">
-                                    <h4>Precision</h4>
-                                </div>
-                                <div class="soft-skill">
-                                    <img class="soft-skill-icon" src="icons/resiliency.svg">
-                                    <h4>Resiliency</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="skills hard-skills">
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                HTML5
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-90"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                CSS3
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-80"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                Javascript
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-30"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                PHP
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-90"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                SQL
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-90"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                Python
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-60"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                C/C++
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-80"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                Java
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-70"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                Laravel
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-40"></div>
-                        </div>
-                        <div class="row hard-skill-headers">
-                            <h3>
-                                Wordpress
-                            </h3>
-                        </div>
-                        <div class="hard-skill-bar default-bar">
-                            <div class="hard-skill-bar percentage-bar percentage-bar-60"></div>
-                        </div>
-
-                        <div class="minor-hard-skills">
-                            <h3>
-                                Minor hard skills & languages
-                            </h3>
-                            <p>Adobe Creative Cloud Suite (in particular Photoshop, Illustrator, InDesign, XD), Figma, Assembly, CLIPS, Machine & Deep Learning, Data Mining, Design Patterns, Agent Systems, Android App Development, Recommender Systems, UX/UI Design, Socket Development</p>
-                        </div>  
-                    </div>
-                </div>
-            </div>
-
-            <div class="section generic-container" id="work">
-                <div class="responsive-container content-section">
-                    <h1>
-                        Projects
-                    </h1>
-                    <div class="separator">
-                    </div>
-                    <div class="grid">
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/Centago">
-                            <div class="hover-project">
-                                <h2>Centago</h2>
-                                <p>A simple realization of the table game Pentago in C Language</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/AskMyTeacher">
-                            <div class="hover-project">
-                                <h2>AskMyTeacher</h2>
-                                <p>A QNA website for students and teachers</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/Corman">
-                            <div class="hover-project">
-                                <h2>Corman</h2>
-                                <p>A responsive website for research paper sharing</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/SNA4Slack">
-                            <div class="hover-project">
-                                <h2>SNA4Slack</h2>
-                                <p>A network analysis and visualization tool for Slack teams</p>
-                            </div>
-                        </a>
-                        <!-- Hide CRISPRLearner -->
-                        <!--
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/CRISPRLearner">
-                            <div class="hover-project">
-                                <h2>CRISPRLearner</h2>
-                                <p>A deep learning-based system to predict CRISPR/Cas9 sgRNA on-target cleavage efficiency</p>
-                            </div>
-                        </a>
-                        -->
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/GroupFinder">
-                            <div class="hover-project">
-                                <h2>GroupFinder</h2>
-                                <p>A tool to calculate similarities between users using GPS positions and paths</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/Apriori">
-                            <div class="hover-project">
-                                <h2>Apriori</h2>
-                                <p>A client-server data mining tool to find frequent patterns</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/Language-Deficit-Screener">
-                            <div class="hover-project">
-                                <h2>Language Deficit Screener</h2>
-                                <p>An expert system for initial screening of language deficit causes in a prescolar age</p>
-                            </div>
-                        </a>
-                        <a class="project-item raisable-element" href="https://github.com/pierclgr/Personal-Website">
-                            <div class="hover-project">
-                                <h2>Personal Website</h2>
-                                <p>My personal website you are currently visiting</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section generic-container work-section">
-                    <div class="responsive-container content-section">
-                        <h1>
-                            Works
-                        </h1>
-                        <div class="separator no-margin">
-                        </div>
-                    </div>
-                    <div class="work-container content-section">
-                        <div class="marquee">
-                            <ul class="marquee-content">
-                                <li><a href="https://www.vitrosoi2020.it"><img src="icons/vitrosoi2020-logo.png"></a></li>
-                                <li><a href="https://www.francosimonesrl.it"><img src="icons/franco-simone-logo.png"></a></li>
-                                <li><a href="https://www.luomochenonguarda.com"><img id="luomochenonguarda" src="icons/luomochenonguarda-logo.png"></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-        </main>
-
-        <footer class="section generic-container footer-info">
-            <div class="responsive-container content-section">
-                <div class="contact-info">
-                    <p class="footer-text">Contact me</p>
-                    <a class="mailto" href="mailto:pierpasquale.colagrande@gmail.com">pierpasquale.colagrande@gmail.com</a>
-                </div>
-                <div class="footer-social-links">
-                    <a href="https://www.instagram.com/pierclgr" class="social-icon instagram-icon"></a>
-                    <a href="https://www.github.com/pierclgr" class="social-icon github-icon"></a>
-                    <a href="https://www.linkedin.com/in/pierclgr/" class="social-icon linkedin-icon"></a>
-                </div>
-                <p class="footer-text copy"><script>document.write(new Date().getFullYear())</script> &copy; Pierpasquale Colagrande</p>
-            </div>
-        </footer>
-    </body>
+    <h2 id="score"></h2>
+    <button id="playButton">Play</button>
+    <h3 style="margin-bottom: 50px;"> (or hit ⬅️➡️⬆️⬇️ to start) </h3>
 
 
-    <!-- Include custom JS scripts -->
-    <script type="text/javascript" src="js/scripts.js"></script>
-    <script type="text/javascript" src="js/word-carousel.js"></script>
+    <h1>🚧 WEBSITE UNDER CONSTRUCTION 🚧</h1>
+    <h2>Please come back later. In the meanwhile, feel free to play or reach out.</h2>
+    <h3> (or visit the old website <a target=”_blank” href="old/index.html">here</a>) </h3>
+
+    <div class="social-links">
+        <a target=”_blank” href="mailto:pierpasquale.colagrande@gmail.com" class="social-icon mail-icon"></a>
+        <a target=”_blank” href="https://www.github.com/pierclgr" class="social-icon github-icon"></a>
+        <a target=”_blank” href="https://www.linkedin.com/in/pierclgr/" class="social-icon linkedin-icon"></a>
+    </div>
+    
+</body>
 </html>

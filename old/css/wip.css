@@ -1,0 +1,180 @@
+:root {
+    --font-color: #fe7f2d
+  }
+  
+
+@font-face {
+            font-family: 'Gotham';
+            src: url('../fonts/Gotham-Black.woff') format('woff');
+            font-style: normal;
+            font-weight: 900;
+        }
+
+@font-face {
+    font-family: 'Mosk';
+    src: url('../fonts/Mosk-Thin-100.woff') format('woff');
+    font-style: normal;
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: 'Mosk';
+    src: url('../fonts/Mosk-Normal-400.woff') format('woff');
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Mosk';
+    src: url('../fonts/Mosk-Bold-700.woff') format('woff');
+    font-style: normal;
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Mosk';
+    src: url('../fonts/Mosk-Semi-Bold-600.woff') format('woff');
+    font-style: normal;
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'Mosk';
+    src: url('../fonts/Mosk-Ultra-Bold-900.woff') format('woff');
+    font-style: normal;
+    font-weight: 900;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #444; /* Dark gray background color */
+    font-family: 'Arial', sans-serif;
+    position: relative; /* Added position relative for positioning the overlay div */
+}
+
+.content {
+    text-align: center;
+    position: relative; /* Added position relative for stacking purposes */
+    z-index: 2; /* Ensure the content is above the overlay */
+}
+
+#graphicDiv {
+    margin-bottom: 60px; /* Adjust the spacing */
+}
+
+h1 {
+    font-size: 48px; /* Increased font size */
+    margin-bottom: 10px;
+    text-transform: uppercase; /* Convert text to all caps */
+    font-family: 'Gotham';
+    line-height: 0;
+    color: var(--font-color);
+}
+
+h2 {
+    font-size: 24px;
+    font-family: 'Mosk';
+    line-height: 0;
+    margin-top: 50px;
+    color: #fefcfb;
+}
+
+h3 {
+    font-size: 15px;
+    font-family: 'Mosk';
+    line-height: 0;
+    font-weight: 100;
+    margin-top: 10px;
+    color: #fefcfb;
+}
+
+a:link {
+    color: var(--font-color);
+    }
+    
+/* visited link */
+a:visited {
+    color: var(--font-color);
+}
+
+/* mouse over link */
+a:hover {
+    color: var(--font-color);
+}
+
+/* selected link */
+a:active {
+    color: var(--font-color);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #262626;
+}
+
+canvas {
+    border: 1px solid #555;
+    margin-top: 20px;
+}
+
+#playButton {
+    background-color: var(--font-color);
+    color: #262626;
+    font-size: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 25px;
+    font-family: 'Mosk';
+    font-weight: 900;
+    margin-bottom: 5px;
+    margin-top: 25px;
+}
+
+.social-icon {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    background-size: cover;
+}
+
+.linkedin-icon {
+    background-image: url(../icons/social-icons/linkedin-logo-orange.svg);
+}
+
+.github-icon {
+    background-image: url(../icons/social-icons/github-logo-orange.svg);
+}
+
+.mail-icon {
+    background-image: url(../icons/social-icons/mail-orange.svg);
+}
+
+.social-links{
+    margin-top: 30px;
+}
+
+.social-links > .social-icon {
+    margin-left: 10px;
+}
+
+.social-links > .social-icon:first-child {
+    margin-left: 0px;
+}
+
+#score {
+    margin-top:20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-size: 20px;
+}

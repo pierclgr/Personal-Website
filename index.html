@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="content">
+        <h2 id="score">&nbsp;</h2>
         <canvas id="snakeCanvas" width="500" height="500"></canvas>
 
         <script>
@@ -100,12 +101,12 @@
                 }
     
                 function increaseSpeed() {
-                    gameSpeed -= 5;
+                    gameSpeed -= 2.5;
                 }
     
                 function handleKeydown(event) {
                     if (!isPlaying) {
-                        document.getElementById("score").textContent = "";
+                        document.getElementById("score").textContent = "\xa0";
                         isPlaying = true;
                         playButton.disabled = true;
                         gameLoop();
@@ -129,7 +130,7 @@
     
                 function handlePlayButtonClick() {
                     if (!isPlaying) {
-                        document.getElementById("score").textContent = "";
+                        document.getElementById("score").textContent = "\xa0";
                         isPlaying = true;
                         playButton.disabled = true;
                         gameLoop();
@@ -153,9 +154,8 @@
         </script>
     </div>
 
-    <h2 id="score"></h2>
     <button id="playButton">Play</button>
-    <h3 style="margin-bottom: 50px;"> (or hit ⬅️➡️⬆️⬇️ to start) </h3>
+    <h3 style="margin-bottom: 40px;"> (or hit ⬅️➡️⬆️⬇️ to start) </h3>
 
 
     <h1>🚧 WEBSITE UNDER CONSTRUCTION 🚧</h1>

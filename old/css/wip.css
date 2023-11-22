@@ -69,28 +69,31 @@ body {
 
 h1 {
     font-size: 48px; /* Increased font size */
-    margin-bottom: 10px;
     text-transform: uppercase; /* Convert text to all caps */
     font-family: 'Gotham';
-    line-height: 0;
+    line-height: normal;
     color: var(--font-color);
+    text-align: center;
+    margin: 0;
 }
 
 h2 {
     font-size: 24px;
     font-family: 'Mosk';
-    line-height: 0;
-    margin-top: 50px;
+    line-height: normal;
+    margin: 0;
     color: #fefcfb;
+    text-align: center;
 }
 
 h3 {
     font-size: 15px;
     font-family: 'Mosk';
-    line-height: 0;
+    line-height: normal;
+    margin: 0;
     font-weight: 100;
-    margin-top: 10px;
     color: #fefcfb;
+    text-align: center;
 }
 
 a:link {
@@ -173,8 +176,6 @@ canvas {
 }
 
 #score {
-    margin-top:20px;
-    margin-bottom: 10px;
     font-weight: 500;
     font-size: 20px;
 }

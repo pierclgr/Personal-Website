@@ -126,7 +126,7 @@ body {
 }
 
 canvas {
-    border: 1px solid #555;
+    border: none;
     margin-top: 20px;
     background-color: #333;
 }

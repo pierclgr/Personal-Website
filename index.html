@@ -27,14 +27,52 @@
     
                 function draw() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-                    // Draw thick box borders
-    
+
+                    const cols = canvas.width / gridSize;
+                    const rows = canvas.height / gridSize;
+                    const hPortalSize = Math.round(cols / 3);
+                    const vPortalSize = Math.round(rows / 3);
+                    const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
+                    const hPortalEnd = hPortalStart + hPortalSize;
+                    const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
+                    const vPortalEnd = vPortalStart + vPortalSize;
+
+                    // Draw borders
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = "#555";
+
+                    function drawEdgeSegment(x1, y1, x2, y2, dashed) {
+                        ctx.beginPath();
+                        ctx.setLineDash(dashed ? [6, 8] : []);
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
+
+                    // Top edge
+                    drawEdgeSegment(0, 0, hPortalStart * gridSize, 0, false);
+                    drawEdgeSegment(hPortalStart * gridSize, 0, hPortalEnd * gridSize, 0, true);
+                    drawEdgeSegment(hPortalEnd * gridSize, 0, canvas.width, 0, false);
+                    // Bottom edge
+                    drawEdgeSegment(0, canvas.height, hPortalStart * gridSize, canvas.height, false);
+                    drawEdgeSegment(hPortalStart * gridSize, canvas.height, hPortalEnd * gridSize, canvas.height, true);
+                    drawEdgeSegment(hPortalEnd * gridSize, canvas.height, canvas.width, canvas.height, false);
+                    // Left edge
+                    drawEdgeSegment(0, 0, 0, vPortalStart * gridSize, false);
+                    drawEdgeSegment(0, vPortalStart * gridSize, 0, vPortalEnd * gridSize, true);
+                    drawEdgeSegment(0, vPortalEnd * gridSize, 0, canvas.height, false);
+                    // Right edge
+                    drawEdgeSegment(canvas.width, 0, canvas.width, vPortalStart * gridSize, false);
+                    drawEdgeSegment(canvas.width, vPortalStart * gridSize, canvas.width, vPortalEnd * gridSize, true);
+                    drawEdgeSegment(canvas.width, vPortalEnd * gridSize, canvas.width, canvas.height, false);
+
+                    ctx.setLineDash([]);
+
                     snake.forEach(segment => {
                         ctx.fillStyle = "#fefcfb";
                         ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
                     });
-    
+
                     ctx.fillStyle = "#fe7f2d";
                     ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
                 }
@@ -56,13 +94,29 @@
                             break;
                     }
     
-                    // Check for collisions with borders
-                    if (
-                        head.x < 0 || head.x >= canvas.width / gridSize ||
-                        head.y < 0 || head.y >= canvas.height / gridSize
-                    ) {
-                        resetGame();
-                        return;
+                    // Wall logic: hard walls with portal openings at the center of each side
+                    const cols = canvas.width / gridSize;
+                    const rows = canvas.height / gridSize;
+                    const hPortalSize = Math.round(cols / 3);
+                    const vPortalSize = Math.round(rows / 3);
+                    const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
+                    const hPortalEnd = hPortalStart + hPortalSize;
+                    const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
+                    const vPortalEnd = vPortalStart + vPortalSize;
+
+                    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
+                        const isPortal =
+                            (head.x < 0 && head.y >= vPortalStart && head.y < vPortalEnd) ||
+                            (head.x >= cols && head.y >= vPortalStart && head.y < vPortalEnd) ||
+                            (head.y < 0 && head.x >= hPortalStart && head.x < hPortalEnd) ||
+                            (head.y >= rows && head.x >= hPortalStart && head.x < hPortalEnd);
+                        if (isPortal) {
+                            head.x = (head.x + cols) % cols;
+                            head.y = (head.y + rows) % rows;
+                        } else {
+                            resetGame();
+                            return;
+                        }
                     }
     
                     snake.unshift(head);
@@ -112,19 +166,11 @@
                         gameLoop();
                     }
     
-                    switch (event.key) {
-                        case "ArrowUp":
-                            direction = "up";
-                            break;
-                        case "ArrowDown":
-                            direction = "down";
-                            break;
-                        case "ArrowLeft":
-                            direction = "left";
-                            break;
-                        case "ArrowRight":
-                            direction = "right";
-                            break;
+                    const opposites = { up: "down", down: "up", left: "right", right: "left" };
+                    const keyMap = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" };
+                    const newDir = keyMap[event.key];
+                    if (newDir && (snake.length <= 2 || newDir !== opposites[direction])) {
+                        direction = newDir;
                     }
                 }
     
@@ -143,13 +189,15 @@
                 function gameLoop() {
                     update();
                     draw();
-    
+
                     if (isPlaying) {
                         setTimeout(() => {
                             requestAnimationFrame(gameLoop);
                         }, gameSpeed);
                     }
                 }
+
+                draw();
             });
         </script>
     </div>

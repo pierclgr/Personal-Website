@@ -10,194 +10,833 @@
 <body>
     <div class="content">
         <h2 id="score">&nbsp;</h2>
-        <canvas id="snakeCanvas" width="500" height="500"></canvas>
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-                const canvas = document.getElementById("snakeCanvas");
+                const canvas = document.getElementById("gameCanvas");
                 const ctx = canvas.getContext("2d");
                 const playButton = document.getElementById("playButton");
-    
-                const gridSize = 20;
-                let snake = [{ x: 10, y: 10 }];
-                let direction = "right";
-                let food = getRandomFoodPosition();
-                let gameSpeed = 150;
-                let isPlaying = false;
-    
-                function draw() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const scoreEl = document.getElementById("score");
 
-                    const cols = canvas.width / gridSize;
-                    const rows = canvas.height / gridSize;
-                    const hPortalSize = Math.round(cols / 3);
-                    const vPortalSize = Math.round(rows / 3);
-                    const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
-                    const hPortalEnd = hPortalStart + hPortalSize;
-                    const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
-                    const vPortalEnd = vPortalStart + vPortalSize;
+                // ===================== SNAKE =====================
+                function createSnakeGame(ctx, canvas) {
+                    const gridSize = 20;
+                    let snake, direction, food, gameSpeed, _gameOver;
 
-                    // Draw borders
-                    ctx.lineWidth = 3;
-                    ctx.strokeStyle = "#555";
-
-                    function drawEdgeSegment(x1, y1, x2, y2, dashed) {
-                        ctx.beginPath();
-                        ctx.setLineDash(dashed ? [6, 8] : []);
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
+                    function getRandomFoodPosition() {
+                        return {
+                            x: Math.floor(Math.random() * (canvas.width / gridSize)),
+                            y: Math.floor(Math.random() * (canvas.height / gridSize))
+                        };
                     }
 
-                    // Top edge
-                    drawEdgeSegment(0, 0, hPortalStart * gridSize, 0, false);
-                    drawEdgeSegment(hPortalStart * gridSize, 0, hPortalEnd * gridSize, 0, true);
-                    drawEdgeSegment(hPortalEnd * gridSize, 0, canvas.width, 0, false);
-                    // Bottom edge
-                    drawEdgeSegment(0, canvas.height, hPortalStart * gridSize, canvas.height, false);
-                    drawEdgeSegment(hPortalStart * gridSize, canvas.height, hPortalEnd * gridSize, canvas.height, true);
-                    drawEdgeSegment(hPortalEnd * gridSize, canvas.height, canvas.width, canvas.height, false);
-                    // Left edge
-                    drawEdgeSegment(0, 0, 0, vPortalStart * gridSize, false);
-                    drawEdgeSegment(0, vPortalStart * gridSize, 0, vPortalEnd * gridSize, true);
-                    drawEdgeSegment(0, vPortalEnd * gridSize, 0, canvas.height, false);
-                    // Right edge
-                    drawEdgeSegment(canvas.width, 0, canvas.width, vPortalStart * gridSize, false);
-                    drawEdgeSegment(canvas.width, vPortalStart * gridSize, canvas.width, vPortalEnd * gridSize, true);
-                    drawEdgeSegment(canvas.width, vPortalEnd * gridSize, canvas.width, canvas.height, false);
-
-                    ctx.setLineDash([]);
-
-                    snake.forEach(segment => {
-                        ctx.fillStyle = "#fefcfb";
-                        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    });
-
-                    ctx.fillStyle = "#fe7f2d";
-                    ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-                }
-    
-                function update() {
-                    const head = { ...snake[0] };
-                    switch (direction) {
-                        case "up":
-                            head.y -= 1;
-                            break;
-                        case "down":
-                            head.y += 1;
-                            break;
-                        case "left":
-                            head.x -= 1;
-                            break;
-                        case "right":
-                            head.x += 1;
-                            break;
-                    }
-    
-                    // Wall logic: hard walls with portal openings at the center of each side
-                    const cols = canvas.width / gridSize;
-                    const rows = canvas.height / gridSize;
-                    const hPortalSize = Math.round(cols / 3);
-                    const vPortalSize = Math.round(rows / 3);
-                    const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
-                    const hPortalEnd = hPortalStart + hPortalSize;
-                    const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
-                    const vPortalEnd = vPortalStart + vPortalSize;
-
-                    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
-                        const isPortal =
-                            (head.x < 0 && head.y >= vPortalStart && head.y < vPortalEnd) ||
-                            (head.x >= cols && head.y >= vPortalStart && head.y < vPortalEnd) ||
-                            (head.y < 0 && head.x >= hPortalStart && head.x < hPortalEnd) ||
-                            (head.y >= rows && head.x >= hPortalStart && head.x < hPortalEnd);
-                        if (isPortal) {
-                            head.x = (head.x + cols) % cols;
-                            head.y = (head.y + rows) % rows;
-                        } else {
-                            resetGame();
-                            return;
-                        }
-                    }
-    
-                    snake.unshift(head);
-    
-                    if (head.x === food.x && head.y === food.y) {
-                        food = getRandomFoodPosition();
-                        increaseSpeed();
-                    } else {
-                        snake.pop();
-                    }
-    
-                    if (checkCollision()) {
-                        resetGame();
-                    }
-                }
-    
-                function checkCollision() {
-                    return snake.slice(1).some(segment => segment.x === snake[0].x && segment.y === snake[0].y);
-                }
-    
-                function getRandomFoodPosition() {
                     return {
-                        x: Math.floor(Math.random() * (canvas.width / gridSize)),
-                        y: Math.floor(Math.random() * (canvas.height / gridSize))
+                        name: "Snake",
+                        init() {
+                            snake = [{ x: 10, y: 10 }];
+                            direction = "right";
+                            food = getRandomFoodPosition();
+                            gameSpeed = 150;
+                            _gameOver = false;
+                        },
+                        draw() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                            const cols = canvas.width / gridSize;
+                            const rows = canvas.height / gridSize;
+                            const hPortalSize = Math.round(cols / 3);
+                            const vPortalSize = Math.round(rows / 3);
+                            const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
+                            const hPortalEnd = hPortalStart + hPortalSize;
+                            const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
+                            const vPortalEnd = vPortalStart + vPortalSize;
+
+                            ctx.lineWidth = 3;
+                            ctx.strokeStyle = "#555";
+
+                            function drawEdgeSegment(x1, y1, x2, y2, dashed) {
+                                ctx.beginPath();
+                                ctx.setLineDash(dashed ? [6, 8] : []);
+                                ctx.moveTo(x1, y1);
+                                ctx.lineTo(x2, y2);
+                                ctx.stroke();
+                            }
+
+                            drawEdgeSegment(0, 0, hPortalStart * gridSize, 0, false);
+                            drawEdgeSegment(hPortalStart * gridSize, 0, hPortalEnd * gridSize, 0, true);
+                            drawEdgeSegment(hPortalEnd * gridSize, 0, canvas.width, 0, false);
+                            drawEdgeSegment(0, canvas.height, hPortalStart * gridSize, canvas.height, false);
+                            drawEdgeSegment(hPortalStart * gridSize, canvas.height, hPortalEnd * gridSize, canvas.height, true);
+                            drawEdgeSegment(hPortalEnd * gridSize, canvas.height, canvas.width, canvas.height, false);
+                            drawEdgeSegment(0, 0, 0, vPortalStart * gridSize, false);
+                            drawEdgeSegment(0, vPortalStart * gridSize, 0, vPortalEnd * gridSize, true);
+                            drawEdgeSegment(0, vPortalEnd * gridSize, 0, canvas.height, false);
+                            drawEdgeSegment(canvas.width, 0, canvas.width, vPortalStart * gridSize, false);
+                            drawEdgeSegment(canvas.width, vPortalStart * gridSize, canvas.width, vPortalEnd * gridSize, true);
+                            drawEdgeSegment(canvas.width, vPortalEnd * gridSize, canvas.width, canvas.height, false);
+
+                            ctx.setLineDash([]);
+
+                            snake.forEach(segment => {
+                                ctx.fillStyle = "#fefcfb";
+                                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                            });
+
+                            ctx.fillStyle = "#fe7f2d";
+                            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+                        },
+                        update() {
+                            if (_gameOver) return;
+                            const head = { ...snake[0] };
+                            switch (direction) {
+                                case "up": head.y -= 1; break;
+                                case "down": head.y += 1; break;
+                                case "left": head.x -= 1; break;
+                                case "right": head.x += 1; break;
+                            }
+
+                            const cols = canvas.width / gridSize;
+                            const rows = canvas.height / gridSize;
+                            const hPortalSize = Math.round(cols / 3);
+                            const vPortalSize = Math.round(rows / 3);
+                            const hPortalStart = Math.floor(cols / 2 - hPortalSize / 2);
+                            const hPortalEnd = hPortalStart + hPortalSize;
+                            const vPortalStart = Math.floor(rows / 2 - vPortalSize / 2);
+                            const vPortalEnd = vPortalStart + vPortalSize;
+
+                            if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
+                                const isPortal =
+                                    (head.x < 0 && head.y >= vPortalStart && head.y < vPortalEnd) ||
+                                    (head.x >= cols && head.y >= vPortalStart && head.y < vPortalEnd) ||
+                                    (head.y < 0 && head.x >= hPortalStart && head.x < hPortalEnd) ||
+                                    (head.y >= rows && head.x >= hPortalStart && head.x < hPortalEnd);
+                                if (isPortal) {
+                                    head.x = (head.x + cols) % cols;
+                                    head.y = (head.y + rows) % rows;
+                                } else {
+                                    _gameOver = true;
+                                    return;
+                                }
+                            }
+
+                            snake.unshift(head);
+
+                            if (head.x === food.x && head.y === food.y) {
+                                food = getRandomFoodPosition();
+                                gameSpeed = Math.max(50, gameSpeed - 2.5);
+                            } else {
+                                snake.pop();
+                            }
+
+                            if (snake.slice(1).some(s => s.x === snake[0].x && s.y === snake[0].y)) {
+                                _gameOver = true;
+                            }
+                        },
+                        handleKey(event) {
+                            const opposites = { up: "down", down: "up", left: "right", right: "left" };
+                            const keyMap = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" };
+                            const newDir = keyMap[event.key];
+                            if (newDir && (snake.length <= 2 || newDir !== opposites[direction])) {
+                                direction = newDir;
+                            }
+                        },
+                        getScore() { return snake.length - 1; },
+                        isGameOver() { return _gameOver; },
+                        getSpeed() { return gameSpeed; }
                     };
                 }
-    
-                function resetGame() {
-                    document.getElementById("score").textContent = "Game over! Your score: " + (snake.length - 1);
-                    snake = [{ x: 10, y: 10 }];
-                    direction = "right";
-                    food = getRandomFoodPosition();
-                    isPlaying = false;
-                    playButton.disabled = false;
-                    gameSpeed = 150;
-                }
-    
-                function increaseSpeed() {
-                    gameSpeed -= 2.5;
-                }
-    
-                function handleKeydown(event) {
-                    if (!isPlaying) {
-                        document.getElementById("score").textContent = "\xa0";
-                        isPlaying = true;
-                        playButton.disabled = true;
-                        gameLoop();
+
+                // ===================== 2048 =====================
+                function create2048Game(ctx, canvas) {
+                    const size = 4;
+                    const padding = 10;
+                    const cellSize = (canvas.width - padding * (size + 1)) / size;
+                    let grid, score, _gameOver, moved;
+
+                    const tileColors = {
+                        0: "#444",
+                        2: "#fefcfb", 4: "#f0e6d3",
+                        8: "#fe7f2d", 16: "#e56b1a",
+                        32: "#cc5a10", 64: "#b34a08",
+                        128: "#ffd700", 256: "#ffc800",
+                        512: "#ffb900", 1024: "#ffaa00",
+                        2048: "#ff9500"
+                    };
+                    const textColors = {
+                        0: "#444", 2: "#333", 4: "#333",
+                        8: "#fefcfb", 16: "#fefcfb", 32: "#fefcfb", 64: "#fefcfb",
+                        128: "#333", 256: "#333", 512: "#333", 1024: "#333", 2048: "#333"
+                    };
+
+                    function spawnTile() {
+                        const empty = [];
+                        for (let r = 0; r < size; r++)
+                            for (let c = 0; c < size; c++)
+                                if (grid[r][c] === 0) empty.push({ r, c });
+                        if (empty.length === 0) return;
+                        const cell = empty[Math.floor(Math.random() * empty.length)];
+                        grid[cell.r][cell.c] = Math.random() < 0.9 ? 2 : 4;
                     }
-    
-                    const opposites = { up: "down", down: "up", left: "right", right: "left" };
-                    const keyMap = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right" };
-                    const newDir = keyMap[event.key];
-                    if (newDir && (snake.length <= 2 || newDir !== opposites[direction])) {
-                        direction = newDir;
+
+                    function slide(row) {
+                        let arr = row.filter(v => v !== 0);
+                        for (let i = 0; i < arr.length - 1; i++) {
+                            if (arr[i] === arr[i + 1]) {
+                                arr[i] *= 2;
+                                score += arr[i];
+                                arr.splice(i + 1, 1);
+                            }
+                        }
+                        while (arr.length < size) arr.push(0);
+                        return arr;
                     }
-                }
-    
-                function handlePlayButtonClick() {
-                    if (!isPlaying) {
-                        document.getElementById("score").textContent = "\xa0";
-                        isPlaying = true;
-                        playButton.disabled = true;
-                        gameLoop();
+
+                    function moveLeft() {
+                        let didMove = false;
+                        for (let r = 0; r < size; r++) {
+                            const newRow = slide(grid[r]);
+                            if (newRow.some((v, i) => v !== grid[r][i])) didMove = true;
+                            grid[r] = newRow;
+                        }
+                        return didMove;
                     }
+
+                    function moveRight() {
+                        let didMove = false;
+                        for (let r = 0; r < size; r++) {
+                            const reversed = [...grid[r]].reverse();
+                            const newRow = slide(reversed).reverse();
+                            if (newRow.some((v, i) => v !== grid[r][i])) didMove = true;
+                            grid[r] = newRow;
+                        }
+                        return didMove;
+                    }
+
+                    function moveUp() {
+                        let didMove = false;
+                        for (let c = 0; c < size; c++) {
+                            const col = [];
+                            for (let r = 0; r < size; r++) col.push(grid[r][c]);
+                            const newCol = slide(col);
+                            if (newCol.some((v, i) => v !== grid[i][c])) didMove = true;
+                            for (let r = 0; r < size; r++) grid[r][c] = newCol[r];
+                        }
+                        return didMove;
+                    }
+
+                    function moveDown() {
+                        let didMove = false;
+                        for (let c = 0; c < size; c++) {
+                            const col = [];
+                            for (let r = 0; r < size; r++) col.push(grid[r][c]);
+                            const newCol = slide(col.reverse()).reverse();
+                            if (newCol.some((v, i) => v !== grid[i][c])) didMove = true;
+                            for (let r = 0; r < size; r++) grid[r][c] = newCol[r];
+                        }
+                        return didMove;
+                    }
+
+                    function checkGameOver() {
+                        for (let r = 0; r < size; r++)
+                            for (let c = 0; c < size; c++) {
+                                if (grid[r][c] === 0) return false;
+                                if (c < size - 1 && grid[r][c] === grid[r][c + 1]) return false;
+                                if (r < size - 1 && grid[r][c] === grid[r + 1][c]) return false;
+                            }
+                        return true;
+                    }
+
+                    function roundRect(x, y, w, h, radius) {
+                        ctx.beginPath();
+                        ctx.moveTo(x + radius, y);
+                        ctx.lineTo(x + w - radius, y);
+                        ctx.arcTo(x + w, y, x + w, y + radius, radius);
+                        ctx.lineTo(x + w, y + h - radius);
+                        ctx.arcTo(x + w, y + h, x + w - radius, y + h, radius);
+                        ctx.lineTo(x + radius, y + h);
+                        ctx.arcTo(x, y + h, x, y + h - radius, radius);
+                        ctx.lineTo(x, y + radius);
+                        ctx.arcTo(x, y, x + radius, y, radius);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    return {
+                        name: "2048",
+                        init() {
+                            grid = Array.from({ length: size }, () => Array(size).fill(0));
+                            score = 0;
+                            _gameOver = false;
+                            spawnTile();
+                            spawnTile();
+                        },
+                        draw() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                            // Background
+                            ctx.fillStyle = "#333";
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            // Border
+                            ctx.lineWidth = 3;
+                            ctx.strokeStyle = "#555";
+                            ctx.setLineDash([]);
+                            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+                            for (let r = 0; r < size; r++) {
+                                for (let c = 0; c < size; c++) {
+                                    const x = padding + c * (cellSize + padding);
+                                    const y = padding + r * (cellSize + padding);
+                                    const val = grid[r][c];
+
+                                    ctx.fillStyle = tileColors[val] || "#ff9500";
+                                    roundRect(x, y, cellSize, cellSize, 8);
+
+                                    if (val !== 0) {
+                                        ctx.fillStyle = textColors[val] || "#fefcfb";
+                                        const fontSize = val >= 1024 ? 28 : val >= 128 ? 34 : 40;
+                                        ctx.font = `bold ${fontSize}px 'Mosk', Arial, sans-serif`;
+                                        ctx.textAlign = "center";
+                                        ctx.textBaseline = "middle";
+                                        ctx.fillText(val, x + cellSize / 2, y + cellSize / 2);
+                                    }
+                                }
+                            }
+                        },
+                        update() {},
+                        handleKey(event) {
+                            if (_gameOver) return;
+                            const moves = {
+                                ArrowLeft: moveLeft, ArrowRight: moveRight,
+                                ArrowUp: moveUp, ArrowDown: moveDown
+                            };
+                            const moveFn = moves[event.key];
+                            if (moveFn && moveFn()) {
+                                spawnTile();
+                                if (checkGameOver()) _gameOver = true;
+                            }
+                        },
+                        getScore() { return score; },
+                        isGameOver() { return _gameOver; },
+                        getSpeed() { return 0; }
+                    };
                 }
-    
-                document.addEventListener("keydown", handleKeydown);
-                playButton.addEventListener("click", handlePlayButtonClick);
-    
+
+                // ===================== TETRIS =====================
+                function createTetrisGame(ctx, canvas) {
+                    const cols = 10, rows = 20, cellSize = 20;
+                    const fieldW = cols * cellSize, fieldH = rows * cellSize;
+                    const offsetX = (canvas.width - fieldW) / 2;
+                    const offsetY = (canvas.height - fieldH) / 2;
+
+                    const pieces = [
+                        { shape: [[1,1,1,1]], color: "#fe7f2d" },                    // I
+                        { shape: [[1,1],[1,1]], color: "#fefcfb" },                  // O
+                        { shape: [[0,1,0],[1,1,1]], color: "#c87428" },              // T
+                        { shape: [[0,1,1],[1,1,0]], color: "#fefcfb" },              // S
+                        { shape: [[1,1,0],[0,1,1]], color: "#fe7f2d" },              // Z
+                        { shape: [[1,0],[1,0],[1,1]], color: "#c87428" },            // J
+                        { shape: [[0,1],[0,1],[1,1]], color: "#fefcfb" }             // L
+                    ];
+
+                    let board, current, currentX, currentY, nextPiece, score, _gameOver, speed, linesCleared;
+
+                    function rotate(shape) {
+                        const r = shape.length, c = shape[0].length;
+                        const rotated = [];
+                        for (let j = 0; j < c; j++) {
+                            rotated.push([]);
+                            for (let i = r - 1; i >= 0; i--) {
+                                rotated[j].push(shape[i][j]);
+                            }
+                        }
+                        return rotated;
+                    }
+
+                    function canPlace(shape, px, py) {
+                        for (let r = 0; r < shape.length; r++)
+                            for (let c = 0; c < shape[r].length; c++)
+                                if (shape[r][c]) {
+                                    const nx = px + c, ny = py + r;
+                                    if (nx < 0 || nx >= cols || ny >= rows) return false;
+                                    if (ny >= 0 && board[ny][nx]) return false;
+                                }
+                        return true;
+                    }
+
+                    function randomPiece() {
+                        const p = pieces[Math.floor(Math.random() * pieces.length)];
+                        return { shape: p.shape.map(r => [...r]), color: p.color };
+                    }
+
+                    function spawn() {
+                        current = nextPiece || randomPiece();
+                        nextPiece = randomPiece();
+                        currentX = Math.floor((cols - current.shape[0].length) / 2);
+                        currentY = -current.shape.length;
+                        if (!canPlace(current.shape, currentX, Math.max(0, currentY))) {
+                            _gameOver = true;
+                        }
+                    }
+
+                    function lock() {
+                        for (let r = 0; r < current.shape.length; r++)
+                            for (let c = 0; c < current.shape[r].length; c++)
+                                if (current.shape[r][c]) {
+                                    const ny = currentY + r;
+                                    if (ny >= 0) board[ny][currentX + c] = current.color;
+                                }
+                        // Clear lines
+                        let cleared = 0;
+                        for (let r = rows - 1; r >= 0; r--) {
+                            if (board[r].every(cell => cell)) {
+                                board.splice(r, 1);
+                                board.unshift(Array(cols).fill(0));
+                                cleared++;
+                                r++;
+                            }
+                        }
+                        if (cleared > 0) {
+                            const points = [0, 100, 300, 500, 800];
+                            score += points[cleared] || 800;
+                            linesCleared += cleared;
+                            speed = Math.max(80, 500 - Math.floor(linesCleared / 5) * 40);
+                        }
+                        spawn();
+                    }
+
+                    return {
+                        name: "Tetris",
+                        init() {
+                            board = Array.from({ length: rows }, () => Array(cols).fill(0));
+                            score = 0;
+                            _gameOver = false;
+                            speed = 500;
+                            linesCleared = 0;
+                            nextPiece = randomPiece();
+                            spawn();
+                        },
+                        draw() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = "#262626";
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            // Playfield background
+                            ctx.fillStyle = "#333";
+                            ctx.fillRect(offsetX, offsetY, fieldW, fieldH);
+
+                            // Border
+                            ctx.lineWidth = 3;
+                            ctx.strokeStyle = "#555";
+                            ctx.setLineDash([]);
+                            ctx.strokeRect(offsetX, offsetY, fieldW, fieldH);
+
+                            // Grid lines
+                            ctx.strokeStyle = "#3a3a3a";
+                            ctx.lineWidth = 0.5;
+                            for (let r = 1; r < rows; r++) {
+                                ctx.beginPath();
+                                ctx.moveTo(offsetX, offsetY + r * cellSize);
+                                ctx.lineTo(offsetX + fieldW, offsetY + r * cellSize);
+                                ctx.stroke();
+                            }
+                            for (let c = 1; c < cols; c++) {
+                                ctx.beginPath();
+                                ctx.moveTo(offsetX + c * cellSize, offsetY);
+                                ctx.lineTo(offsetX + c * cellSize, offsetY + fieldH);
+                                ctx.stroke();
+                            }
+
+                            // Locked cells
+                            for (let r = 0; r < rows; r++)
+                                for (let c = 0; c < cols; c++)
+                                    if (board[r][c]) {
+                                        ctx.fillStyle = board[r][c];
+                                        ctx.fillRect(offsetX + c * cellSize + 1, offsetY + r * cellSize + 1, cellSize - 2, cellSize - 2);
+                                    }
+
+                            // Current piece
+                            if (current && !_gameOver) {
+                                for (let r = 0; r < current.shape.length; r++)
+                                    for (let c = 0; c < current.shape[r].length; c++)
+                                        if (current.shape[r][c]) {
+                                            const dy = currentY + r;
+                                            if (dy >= 0) {
+                                                ctx.fillStyle = current.color;
+                                                ctx.fillRect(offsetX + (currentX + c) * cellSize + 1, offsetY + dy * cellSize + 1, cellSize - 2, cellSize - 2);
+                                            }
+                                        }
+                            }
+
+                            // Next piece preview (show current piece before game starts, next piece during play)
+                            const previewPiece = (currentY < 0) ? current : nextPiece;
+                            if (previewPiece) {
+                                const previewX = offsetX + fieldW + 15;
+                                const previewY = offsetY;
+                                ctx.fillStyle = "#fefcfb";
+                                ctx.font = "bold 12px 'Mosk', Arial, sans-serif";
+                                ctx.textAlign = "left";
+                                ctx.textBaseline = "top";
+                                ctx.fillText("NEXT", previewX, previewY);
+
+                                const boxW = 4 * cellSize + 10;
+                                const boxH = 4 * cellSize + 10;
+                                ctx.fillStyle = "#333";
+                                ctx.fillRect(previewX, previewY + 18, boxW, boxH);
+                                ctx.strokeStyle = "#555";
+                                ctx.lineWidth = 2;
+                                ctx.strokeRect(previewX, previewY + 18, boxW, boxH);
+
+                                const sh = previewPiece.shape.length;
+                                const sw = previewPiece.shape[0].length;
+                                const npOffX = previewX + (boxW - sw * cellSize) / 2;
+                                const npOffY = previewY + 18 + (boxH - sh * cellSize) / 2;
+                                for (let r = 0; r < sh; r++)
+                                    for (let c = 0; c < sw; c++)
+                                        if (previewPiece.shape[r][c]) {
+                                            ctx.fillStyle = previewPiece.color;
+                                            ctx.fillRect(npOffX + c * cellSize + 1, npOffY + r * cellSize + 1, cellSize - 2, cellSize - 2);
+                                        }
+                            }
+                        },
+                        update() {
+                            if (_gameOver) return;
+                            if (canPlace(current.shape, currentX, currentY + 1)) {
+                                currentY++;
+                            } else {
+                                lock();
+                            }
+                        },
+                        handleKey(event) {
+                            if (_gameOver) return;
+                            switch (event.key) {
+                                case "ArrowLeft":
+                                    if (canPlace(current.shape, currentX - 1, currentY)) currentX--;
+                                    break;
+                                case "ArrowRight":
+                                    if (canPlace(current.shape, currentX + 1, currentY)) currentX++;
+                                    break;
+                                case "ArrowUp": {
+                                    const rotated = rotate(current.shape);
+                                    if (canPlace(rotated, currentX, currentY)) {
+                                        current.shape = rotated;
+                                    } else if (canPlace(rotated, currentX - 1, currentY)) {
+                                        current.shape = rotated; currentX--;
+                                    } else if (canPlace(rotated, currentX + 1, currentY)) {
+                                        current.shape = rotated; currentX++;
+                                    }
+                                    break;
+                                }
+                                case "ArrowDown":
+                                    if (canPlace(current.shape, currentX, currentY + 1)) currentY++;
+                                    break;
+                            }
+                        },
+                        getScore() { return score; },
+                        isGameOver() { return _gameOver; },
+                        getSpeed() { return speed; }
+                    };
+                }
+
+                // ===================== BREAKOUT =====================
+                function createBreakoutGame(ctx, canvas) {
+                    const brickRows = 5, brickCols = 8;
+                    const brickPad = 4, brickH = 20;
+                    const brickW = (canvas.width - brickPad * (brickCols + 1)) / brickCols;
+                    const brickOffsetY = 40;
+                    const paddleW = 80, paddleH = 10, paddleY = canvas.height - 30;
+                    const ballRadius = 6;
+
+                    let paddleX, ballX, ballY, ballDX, ballDY, bricks, score, _gameOver, paddleDir;
+                    let keyupListener;
+
+                    return {
+                        name: "Breakout",
+                        init() {
+                            paddleX = (canvas.width - paddleW) / 2;
+                            ballX = canvas.width / 2;
+                            ballY = paddleY - ballRadius - 1;
+                            ballDX = 3;
+                            ballDY = -3;
+                            score = 0;
+                            _gameOver = false;
+                            paddleDir = 0;
+
+                            bricks = [];
+                            for (let r = 0; r < brickRows; r++) {
+                                bricks[r] = [];
+                                for (let c = 0; c < brickCols; c++) {
+                                    bricks[r][c] = true;
+                                }
+                            }
+
+                            if (keyupListener) document.removeEventListener("keyup", keyupListener);
+                            keyupListener = (e) => {
+                                if ((e.key === "ArrowLeft" && paddleDir === -1) ||
+                                    (e.key === "ArrowRight" && paddleDir === 1)) {
+                                    paddleDir = 0;
+                                }
+                            };
+                            document.addEventListener("keyup", keyupListener);
+                        },
+                        draw() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = "#333";
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            // Border
+                            ctx.lineWidth = 3;
+                            ctx.strokeStyle = "#555";
+                            ctx.setLineDash([]);
+                            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+                            // Bricks
+                            for (let r = 0; r < brickRows; r++)
+                                for (let c = 0; c < brickCols; c++)
+                                    if (bricks[r][c]) {
+                                        const x = brickPad + c * (brickW + brickPad);
+                                        const y = brickOffsetY + r * (brickH + brickPad);
+                                        ctx.fillStyle = r % 2 === 0 ? "#fefcfb" : "#fe7f2d";
+                                        ctx.fillRect(x, y, brickW, brickH);
+                                    }
+
+                            // Paddle
+                            ctx.fillStyle = "#fefcfb";
+                            ctx.fillRect(paddleX, paddleY, paddleW, paddleH);
+
+                            // Ball
+                            ctx.fillStyle = "#fe7f2d";
+                            ctx.beginPath();
+                            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+                            ctx.fill();
+                        },
+                        update() {
+                            if (_gameOver) return;
+
+                            // Move paddle
+                            paddleX += paddleDir * 6;
+                            paddleX = Math.max(0, Math.min(canvas.width - paddleW, paddleX));
+
+                            // Move ball
+                            ballX += ballDX;
+                            ballY += ballDY;
+
+                            // Wall bounces
+                            if (ballX - ballRadius <= 0 || ballX + ballRadius >= canvas.width) ballDX = -ballDX;
+                            if (ballY - ballRadius <= 0) ballDY = -ballDY;
+
+                            // Ball below paddle
+                            if (ballY + ballRadius >= canvas.height) {
+                                _gameOver = true;
+                                return;
+                            }
+
+                            // Paddle bounce
+                            if (ballDY > 0 &&
+                                ballY + ballRadius >= paddleY &&
+                                ballY + ballRadius <= paddleY + paddleH + 4 &&
+                                ballX >= paddleX && ballX <= paddleX + paddleW) {
+                                ballDY = -ballDY;
+                                const hitPos = (ballX - paddleX) / paddleW;
+                                ballDX = 6 * (hitPos - 0.5);
+                            }
+
+                            // Brick collision
+                            for (let r = 0; r < brickRows; r++)
+                                for (let c = 0; c < brickCols; c++)
+                                    if (bricks[r][c]) {
+                                        const bx = brickPad + c * (brickW + brickPad);
+                                        const by = brickOffsetY + r * (brickH + brickPad);
+                                        if (ballX + ballRadius > bx && ballX - ballRadius < bx + brickW &&
+                                            ballY + ballRadius > by && ballY - ballRadius < by + brickH) {
+                                            bricks[r][c] = false;
+                                            ballDY = -ballDY;
+                                            score += 10;
+                                        }
+                                    }
+
+                            // Check win
+                            if (bricks.every(row => row.every(b => !b))) {
+                                _gameOver = true;
+                            }
+                        },
+                        handleKey(event) {
+                            if (event.key === "ArrowLeft") paddleDir = -1;
+                            if (event.key === "ArrowRight") paddleDir = 1;
+                        },
+                        getScore() { return score; },
+                        isGameOver() { return _gameOver; },
+                        getSpeed() { return 16; }
+                    };
+                }
+
+                // ===================== FLAPPY BIRD =====================
+                function createFlappyGame(ctx, canvas) {
+                    const birdX = 80, birdSize = 20;
+                    const pipeW = 50, gapH = 120, pipeSpeed = 2.5;
+                    const gravity = 0.4, flapStrength = -6.5;
+
+                    let birdY, birdVel, pipes, score, _gameOver, frameCount;
+
+                    function addPipe() {
+                        const minTop = 40;
+                        const maxTop = canvas.height - gapH - 40;
+                        const topH = minTop + Math.random() * (maxTop - minTop);
+                        pipes.push({ x: canvas.width, topH: topH });
+                    }
+
+                    return {
+                        name: "Flappy",
+                        init() {
+                            birdY = canvas.height / 2;
+                            birdVel = 0;
+                            pipes = [];
+                            score = 0;
+                            _gameOver = false;
+                            frameCount = 0;
+                            addPipe();
+                        },
+                        draw() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = "#333";
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            // Border
+                            ctx.lineWidth = 3;
+                            ctx.strokeStyle = "#555";
+                            ctx.setLineDash([]);
+                            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+                            // Pipes
+                            ctx.fillStyle = "#fefcfb";
+                            for (const pipe of pipes) {
+                                ctx.fillRect(pipe.x, 0, pipeW, pipe.topH);
+                                ctx.fillRect(pipe.x, pipe.topH + gapH, pipeW, canvas.height - pipe.topH - gapH);
+                            }
+
+                            // Bird
+                            ctx.fillStyle = "#fe7f2d";
+                            ctx.beginPath();
+                            ctx.arc(birdX + birdSize / 2, birdY + birdSize / 2, birdSize / 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        },
+                        update() {
+                            if (_gameOver) return;
+
+                            birdVel += gravity;
+                            birdY += birdVel;
+                            frameCount++;
+
+                            // Ground/ceiling
+                            if (birdY <= 0 || birdY + birdSize >= canvas.height) {
+                                _gameOver = true;
+                                return;
+                            }
+
+                            // Move pipes and check collision
+                            for (let i = pipes.length - 1; i >= 0; i--) {
+                                pipes[i].x -= pipeSpeed;
+
+                                // Score when passing pipe
+                                if (!pipes[i].scored && pipes[i].x + pipeW < birdX) {
+                                    score++;
+                                    pipes[i].scored = true;
+                                }
+
+                                // Collision
+                                if (birdX + birdSize > pipes[i].x && birdX < pipes[i].x + pipeW) {
+                                    if (birdY < pipes[i].topH || birdY + birdSize > pipes[i].topH + gapH) {
+                                        _gameOver = true;
+                                        return;
+                                    }
+                                }
+
+                                // Remove off-screen pipes
+                                if (pipes[i].x + pipeW < 0) pipes.splice(i, 1);
+                            }
+
+                            // Spawn new pipes
+                            if (frameCount % 90 === 0) addPipe();
+                        },
+                        handleKey(event) {
+                            if (event.key === "ArrowUp") birdVel = flapStrength;
+                        },
+                        getScore() { return score; },
+                        isGameOver() { return _gameOver; },
+                        getSpeed() { return 16; }
+                    };
+                }
+
+                // ===================== ORCHESTRATION =====================
+                const games = [createSnakeGame, createTetrisGame, createBreakoutGame, create2048Game, createFlappyGame];
+                const chosen = games[Math.floor(Math.random() * games.length)];
+                const game = chosen(ctx, canvas);
+                game.init();
+                game.draw();
+
+                let isPlaying = false;
+
                 function gameLoop() {
-                    update();
-                    draw();
+                    game.update();
+                    game.draw();
+
+                    if (game.isGameOver()) {
+                        scoreEl.textContent = "Game over! Your score: " + game.getScore();
+                        isPlaying = false;
+                        playButton.disabled = false;
+                        return;
+                    }
+
+                    scoreEl.textContent = "Score: " + game.getScore();
 
                     if (isPlaying) {
-                        setTimeout(() => {
-                            requestAnimationFrame(gameLoop);
-                        }, gameSpeed);
+                        setTimeout(() => requestAnimationFrame(gameLoop), game.getSpeed());
                     }
                 }
 
-                draw();
+                function startGame() {
+                    if (!isPlaying) {
+                        scoreEl.textContent = "\xa0";
+                        isPlaying = true;
+                        playButton.disabled = true;
+                        if (game.getSpeed() > 0) {
+                            gameLoop();
+                        }
+                    }
+                }
+
+                playButton.addEventListener("click", () => {
+                    if (game.isGameOver()) {
+                        game.init();
+                        game.draw();
+                    }
+                    startGame();
+                });
+
+                document.addEventListener("keydown", (e) => {
+                    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                    if (game.isGameOver()) {
+                        game.init();
+                        game.draw();
+                    }
+                    if (!isPlaying) startGame();
+                    game.handleKey(e);
+
+                    // For input-driven games (2048), update inline
+                    if (isPlaying && game.getSpeed() === 0) {
+                        game.draw();
+                        if (game.isGameOver()) {
+                            scoreEl.textContent = "Game over! Your score: " + game.getScore();
+                            isPlaying = false;
+                            playButton.disabled = false;
+                        } else {
+                            scoreEl.textContent = "Score: " + game.getScore();
+                        }
+                    }
+                });
             });
         </script>
     </div>
@@ -208,13 +847,13 @@
 
     <h1>🚧 WEBSITE UNDER CONSTRUCTION 🚧</h1>
     <h2>Please come back later. In the meanwhile, feel free to play or reach out.</h2>
-    <h3> (or visit the old website <a target=”_blank” href="old/index.html">here</a>) </h3>
+    <h3> (or visit the old website <a target="_blank" href="old/index.html">here</a>) </h3>
 
     <div class="social-links">
-        <a target=”_blank” href="mailto:pierpasquale.colagrande@gmail.com" class="social-icon mail-icon"></a>
-        <a target=”_blank” href="https://www.github.com/pierclgr" class="social-icon github-icon"></a>
-        <a target=”_blank” href="https://www.linkedin.com/in/pierclgr/" class="social-icon linkedin-icon"></a>
+        <a target="_blank" href="mailto:pierpasquale.colagrande@gmail.com" class="social-icon mail-icon"></a>
+        <a target="_blank" href="https://www.github.com/pierclgr" class="social-icon github-icon"></a>
+        <a target="_blank" href="https://www.linkedin.com/in/pierclgr/" class="social-icon linkedin-icon"></a>
     </div>
-    
+
 </body>
 </html>

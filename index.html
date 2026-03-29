@@ -818,6 +818,7 @@
                     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
                         e.preventDefault();
                     }
+                    if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
                     if (game.isGameOver()) {
                         game.init();
                         game.draw();

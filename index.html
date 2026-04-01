@@ -401,7 +401,7 @@
                             const points = [0, 100, 300, 500, 800];
                             score += points[cleared] || 800;
                             linesCleared += cleared;
-                            speed = Math.max(80, 500 - Math.floor(linesCleared / 5) * 40);
+                            speed = Math.max(80, 500 - linesCleared * 8);
                         }
                         spawn();
                     }
@@ -549,7 +549,7 @@
                     const ballRadius = 6;
 
                     let paddleX, ballX, ballY, ballDX, ballDY, bricks, score, _gameOver, paddleDir;
-                    let keyupListener;
+                    let keyupListener, baseSpeed, paddleSpeed;
 
                     return {
                         name: "Breakout",
@@ -559,6 +559,8 @@
                             ballY = paddleY - ballRadius - 1;
                             ballDX = 3;
                             ballDY = -3;
+                            baseSpeed = 3;
+                            paddleSpeed = 6;
                             score = 0;
                             _gameOver = false;
                             paddleDir = 0;
@@ -615,7 +617,7 @@
                             if (_gameOver) return;
 
                             // Move paddle
-                            paddleX += paddleDir * 6;
+                            paddleX += paddleDir * paddleSpeed;
                             paddleX = Math.max(0, Math.min(canvas.width - paddleW, paddleX));
 
                             // Move ball
@@ -653,6 +655,11 @@
                                             bricks[r][c] = false;
                                             ballDY = -ballDY;
                                             score += 10;
+                                            // Speed up ball and paddle every 50 points
+                                            const speedMult = 1 + score / 200;
+                                            const dir = ballDY > 0 ? 1 : -1;
+                                            ballDY = dir * baseSpeed * speedMult;
+                                            paddleSpeed = 6 * speedMult;
                                         }
                                     }
 
@@ -674,16 +681,17 @@
                 // ===================== FLAPPY BIRD =====================
                 function createFlappyGame(ctx, canvas) {
                     const birdX = 80, birdSize = 20;
-                    const pipeW = 50, gapH = 120, pipeSpeed = 2.5;
+                    const pipeW = 50, minGapH = 80, maxGapH = 140, basePipeSpeed = 2.5;
                     const gravity = 0.4, flapStrength = -6.5;
 
-                    let birdY, birdVel, pipes, score, _gameOver, frameCount;
+                    let birdY, birdVel, pipes, score, _gameOver, frameCount, pipeSpeed;
 
                     function addPipe() {
+                        const gapH = minGapH + Math.random() * (maxGapH - minGapH);
                         const minTop = 40;
                         const maxTop = canvas.height - gapH - 40;
                         const topH = minTop + Math.random() * (maxTop - minTop);
-                        pipes.push({ x: canvas.width, topH: topH });
+                        pipes.push({ x: canvas.width, topH: topH, gapH: gapH });
                     }
 
                     return {
@@ -695,6 +703,7 @@
                             score = 0;
                             _gameOver = false;
                             frameCount = 0;
+                            pipeSpeed = basePipeSpeed;
                             addPipe();
                         },
                         draw() {
@@ -712,7 +721,7 @@
                             ctx.fillStyle = "#fefcfb";
                             for (const pipe of pipes) {
                                 ctx.fillRect(pipe.x, 0, pipeW, pipe.topH);
-                                ctx.fillRect(pipe.x, pipe.topH + gapH, pipeW, canvas.height - pipe.topH - gapH);
+                                ctx.fillRect(pipe.x, pipe.topH + pipe.gapH, pipeW, canvas.height - pipe.topH - pipe.gapH);
                             }
 
                             // Bird
@@ -742,11 +751,12 @@
                                 if (!pipes[i].scored && pipes[i].x + pipeW < birdX) {
                                     score++;
                                     pipes[i].scored = true;
+                                    pipeSpeed = basePipeSpeed + score * 0.15;
                                 }
 
                                 // Collision
                                 if (birdX + birdSize > pipes[i].x && birdX < pipes[i].x + pipeW) {
-                                    if (birdY < pipes[i].topH || birdY + birdSize > pipes[i].topH + gapH) {
+                                    if (birdY < pipes[i].topH || birdY + birdSize > pipes[i].topH + pipes[i].gapH) {
                                         _gameOver = true;
                                         return;
                                     }
